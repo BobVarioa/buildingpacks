@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XXX",
+    "X/X",
+    "XXX"
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:dark_prismarine"
+    },
+    "/": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "item": "buildingpacks:block_pack",
+    "nbt": {
+      "id": "buildingpacks:dark_prismarine",
+      "material": 0
+    }
+  }
+}
