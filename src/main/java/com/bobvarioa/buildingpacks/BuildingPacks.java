@@ -10,6 +10,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -69,11 +70,12 @@ public class BuildingPacks {
         MinecraftForge.EVENT_BUS.addListener(BlockPackItem::pickBlock);
         MinecraftForge.EVENT_BUS.addListener(BlockPackItem::pickupItem);
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+//        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void createRegistry(final NewRegistryEvent event) {
-        RegistryBuilder<BlockPack> builder = RegistryBuilder.of("buildingpacks:block_packs");
+        RegistryBuilder<BlockPack> builder = new RegistryBuilder<>();
+        builder.setName(new ResourceLocation("buildingpacks:block_packs"));
         event.create(builder, (reg) -> {
             BLOCK_PACKS = reg;
         });
@@ -81,7 +83,7 @@ public class BuildingPacks {
 
     private void onRegister(final RegisterEvent event) {
         event.register(ResourceKey.createRegistryKey(new ResourceLocation("buildingpacks", "block_packs")), helper -> {
-            helper.register("oak_wood", new BlockPack(64*8, "buildingpacks:oak_wood")
+            helper.register("oak_wood", new BlockPack(64 * 8, "buildingpacks:oak_wood")
                     .put(Blocks.OAK_PLANKS, 1f)
                     .put(Blocks.OAK_LOG, 4f, true)
                     .put(Blocks.STRIPPED_OAK_LOG, 4f, true)
@@ -96,7 +98,7 @@ public class BuildingPacks {
                     .put(Blocks.OAK_BUTTON, 1f)
                     .put(Blocks.OAK_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.OAK_TRAPDOOR, 3f));
-            helper.register("spruce_wood", new BlockPack(64*8, "buildingpacks:spruce_wood")
+            helper.register("spruce_wood", new BlockPack(64 * 8, "buildingpacks:spruce_wood")
                     .put(Blocks.SPRUCE_PLANKS, 1f)
                     .put(Blocks.SPRUCE_LOG, 4f, true)
                     .put(Blocks.STRIPPED_SPRUCE_LOG, 4f, true)
@@ -111,7 +113,7 @@ public class BuildingPacks {
                     .put(Blocks.SPRUCE_BUTTON, 1f)
                     .put(Blocks.SPRUCE_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.SPRUCE_TRAPDOOR, 3f));
-            helper.register("acacia_wood", new BlockPack(64*8, "buildingpacks:acacia_wood")
+            helper.register("acacia_wood", new BlockPack(64 * 8, "buildingpacks:acacia_wood")
                     .put(Blocks.ACACIA_PLANKS, 1f)
                     .put(Blocks.ACACIA_LOG, 4f, true)
                     .put(Blocks.STRIPPED_ACACIA_LOG, 4f, true)
@@ -126,7 +128,7 @@ public class BuildingPacks {
                     .put(Blocks.ACACIA_BUTTON, 1f)
                     .put(Blocks.ACACIA_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.ACACIA_TRAPDOOR, 3f));
-            helper.register("birch_wood", new BlockPack(64*8, "buildingpacks:birch_wood")
+            helper.register("birch_wood", new BlockPack(64 * 8, "buildingpacks:birch_wood")
                     .put(Blocks.BIRCH_PLANKS, 1f)
                     .put(Blocks.BIRCH_LOG, 4f, true)
                     .put(Blocks.STRIPPED_BIRCH_LOG, 4f, true)
@@ -141,7 +143,7 @@ public class BuildingPacks {
                     .put(Blocks.BIRCH_BUTTON, 1f)
                     .put(Blocks.BIRCH_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.BIRCH_TRAPDOOR, 3f));
-            helper.register("dark_oak_wood", new BlockPack(64*8, "buildingpacks:dark_oak_wood")
+            helper.register("dark_oak_wood", new BlockPack(64 * 8, "buildingpacks:dark_oak_wood")
                     .put(Blocks.DARK_OAK_PLANKS, 1f)
                     .put(Blocks.DARK_OAK_LOG, 4f, true)
                     .put(Blocks.STRIPPED_DARK_OAK_LOG, 4f, true)
@@ -156,7 +158,7 @@ public class BuildingPacks {
                     .put(Blocks.DARK_OAK_BUTTON, 1f)
                     .put(Blocks.DARK_OAK_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.DARK_OAK_TRAPDOOR, 3f));
-            helper.register("jungle_wood", new BlockPack(64*8, "buildingpacks:jungle_wood")
+            helper.register("jungle_wood", new BlockPack(64 * 8, "buildingpacks:jungle_wood")
                     .put(Blocks.JUNGLE_PLANKS, 1f)
                     .put(Blocks.JUNGLE_LOG, 4f, true)
                     .put(Blocks.STRIPPED_JUNGLE_LOG, 4f, true)
@@ -171,7 +173,7 @@ public class BuildingPacks {
                     .put(Blocks.JUNGLE_BUTTON, 1f)
                     .put(Blocks.JUNGLE_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.JUNGLE_TRAPDOOR, 3f));
-            helper.register("mangrove_wood", new BlockPack(64*8, "buildingpacks:mangrove_wood")
+            helper.register("mangrove_wood", new BlockPack(64 * 8, "buildingpacks:mangrove_wood")
                     .put(Blocks.MANGROVE_PLANKS, 1f)
                     .put(Blocks.MANGROVE_LOG, 4f, true)
                     .put(Blocks.STRIPPED_MANGROVE_LOG, 4f, true)
@@ -186,7 +188,7 @@ public class BuildingPacks {
                     .put(Blocks.MANGROVE_BUTTON, 1f)
                     .put(Blocks.MANGROVE_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.MANGROVE_TRAPDOOR, 3f));
-            helper.register("cherry_wood", new BlockPack(64*8, "buildingpacks:cherry_wood")
+            helper.register("cherry_wood", new BlockPack(64 * 8, "buildingpacks:cherry_wood")
                     .put(Blocks.CHERRY_PLANKS, 1f)
                     .put(Blocks.CHERRY_LOG, 4f, true)
                     .put(Blocks.STRIPPED_CHERRY_LOG, 4f, true)
@@ -201,7 +203,7 @@ public class BuildingPacks {
                     .put(Blocks.CHERRY_BUTTON, 1f)
                     .put(Blocks.CHERRY_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.CHERRY_TRAPDOOR, 3f));
-            helper.register("crimson_wood", new BlockPack(64*8, "buildingpacks:crimson_wood")
+            helper.register("crimson_wood", new BlockPack(64 * 8, "buildingpacks:crimson_wood")
                     .put(Blocks.CRIMSON_PLANKS, 1f)
                     .put(Blocks.CRIMSON_STEM, 4f, true)
                     .put(Blocks.STRIPPED_CRIMSON_STEM, 4f, true)
@@ -216,7 +218,7 @@ public class BuildingPacks {
                     .put(Blocks.CRIMSON_BUTTON, 1f)
                     .put(Blocks.CRIMSON_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.CRIMSON_TRAPDOOR, 3f));
-            helper.register("warped_wood", new BlockPack(64*8, "buildingpacks:warped_wood")
+            helper.register("warped_wood", new BlockPack(64 * 8, "buildingpacks:warped_wood")
                     .put(Blocks.WARPED_PLANKS, 1f)
                     .put(Blocks.WARPED_STEM, 4f, true)
                     .put(Blocks.STRIPPED_WARPED_STEM, 4f, true)
@@ -231,7 +233,7 @@ public class BuildingPacks {
                     .put(Blocks.WARPED_BUTTON, 1f)
                     .put(Blocks.WARPED_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.WARPED_TRAPDOOR, 3f));
-            helper.register("bamboo_wood", new BlockPack(64*8, "buildingpacks:bamboo_wood")
+            helper.register("bamboo_wood", new BlockPack(64 * 8, "buildingpacks:bamboo_wood")
                     .put(Blocks.BAMBOO_BLOCK, 2f, true)
                     .put(Blocks.BAMBOO_PLANKS, 1f)
                     .put(Blocks.BAMBOO_STAIRS, 1f)
@@ -243,7 +245,7 @@ public class BuildingPacks {
                     .put(Blocks.BAMBOO_BUTTON, 1f)
                     .put(Blocks.BAMBOO_SIGN, 2.2f) // 6.5/3
                     .put(Blocks.BAMBOO_TRAPDOOR, 3f));
-            helper.register("stone", new BlockPack(64*8, "buildingpacks:stone")
+            helper.register("stone", new BlockPack(64 * 8, "buildingpacks:stone")
                     .put(Blocks.STONE, 1f)
                     .put(Blocks.STONE_STAIRS, 1f)
                     .put(Blocks.STONE_SLAB, 0.5f)
@@ -257,7 +259,7 @@ public class BuildingPacks {
                     .put(Blocks.CHISELED_STONE_BRICKS, 1f)
                     .put(Blocks.SMOOTH_STONE, 1f)
                     .put(Blocks.SMOOTH_STONE_SLAB, 0.5f));
-            helper.register("deepslate", new BlockPack(64*8, "buildingpacks:deepslate")
+            helper.register("deepslate", new BlockPack(64 * 8, "buildingpacks:deepslate")
                     .put(Blocks.DEEPSLATE, 1f)
                     .put(Blocks.DEEPSLATE_BRICKS, 1f)
                     .put(Blocks.CRACKED_DEEPSLATE_BRICKS, 1f)
@@ -275,12 +277,12 @@ public class BuildingPacks {
                     .put(Blocks.POLISHED_DEEPSLATE, 1f)
                     .put(Blocks.POLISHED_DEEPSLATE_STAIRS, 1f)
                     .put(Blocks.POLISHED_DEEPSLATE_SLAB, 0.5f));
-            helper.register("cobblestone", new BlockPack(64*8, "buildingpacks:cobblestone")
+            helper.register("cobblestone", new BlockPack(64 * 8, "buildingpacks:cobblestone")
                     .put(Blocks.COBBLESTONE, 1f)
                     .put(Blocks.COBBLESTONE_STAIRS, 1f)
                     .put(Blocks.COBBLESTONE_SLAB, 0.5f)
                     .put(Blocks.COBBLESTONE_WALL, 1f));
-            helper.register("blackstone", new BlockPack(64*8, "buildingpacks:blackstone")
+            helper.register("blackstone", new BlockPack(64 * 8, "buildingpacks:blackstone")
                     .put(Blocks.BLACKSTONE, 1f)
                     .put(Blocks.BLACKSTONE_STAIRS, 1f)
                     .put(Blocks.BLACKSTONE_SLAB, 0.5f)
@@ -296,13 +298,13 @@ public class BuildingPacks {
                     .put(Blocks.POLISHED_BLACKSTONE_BRICK_SLAB, 0.5f)
                     .put(Blocks.POLISHED_BLACKSTONE_BRICK_WALL, 1f)
                     .put(Blocks.CHISELED_POLISHED_BLACKSTONE, 1f));
-            helper.register("end_stone", new BlockPack(64*8, "buildingpacks:end_stone")
+            helper.register("end_stone", new BlockPack(64 * 8, "buildingpacks:end_stone")
                     .put(Blocks.END_STONE, 1f)
                     .put(Blocks.END_STONE_BRICKS, 1f)
                     .put(Blocks.END_STONE_BRICK_STAIRS, 1f)
                     .put(Blocks.END_STONE_BRICK_SLAB, 0.5f)
                     .put(Blocks.END_STONE_BRICK_WALL, 1f));
-            helper.register("granite", new BlockPack(64*8, "buildingpacks:granite")
+            helper.register("granite", new BlockPack(64 * 8, "buildingpacks:granite")
                     .put(Blocks.GRANITE, 1f)
                     .put(Blocks.GRANITE_STAIRS, 1f)
                     .put(Blocks.GRANITE_SLAB, 0.5f)
@@ -310,7 +312,7 @@ public class BuildingPacks {
                     .put(Blocks.POLISHED_GRANITE, 1f)
                     .put(Blocks.POLISHED_GRANITE_STAIRS, 1f)
                     .put(Blocks.POLISHED_GRANITE_SLAB, 0.5f));
-            helper.register("diorite", new BlockPack(64*8, "buildingpacks:diorite")
+            helper.register("diorite", new BlockPack(64 * 8, "buildingpacks:diorite")
                     .put(Blocks.DIORITE, 1f)
                     .put(Blocks.DIORITE_STAIRS, 1f)
                     .put(Blocks.DIORITE_SLAB, 0.5f)
@@ -318,7 +320,7 @@ public class BuildingPacks {
                     .put(Blocks.POLISHED_DIORITE, 1f)
                     .put(Blocks.POLISHED_DIORITE_STAIRS, 1f)
                     .put(Blocks.POLISHED_DIORITE_SLAB, 0.5f));
-            helper.register("andesite", new BlockPack(64*8, "buildingpacks:andesite")
+            helper.register("andesite", new BlockPack(64 * 8, "buildingpacks:andesite")
                     .put(Blocks.ANDESITE, 1f)
                     .put(Blocks.ANDESITE_STAIRS, 1f)
                     .put(Blocks.ANDESITE_SLAB, 0.5f)
@@ -326,7 +328,7 @@ public class BuildingPacks {
                     .put(Blocks.POLISHED_ANDESITE, 1f)
                     .put(Blocks.POLISHED_ANDESITE_STAIRS, 1f)
                     .put(Blocks.POLISHED_ANDESITE_SLAB, 0.5f));
-            helper.register("netherbrick", new BlockPack(64*8, "buildingpacks:netherbrick")
+            helper.register("netherbrick", new BlockPack(64 * 8, "buildingpacks:netherbrick")
                     .put(Blocks.NETHER_BRICKS, 1f)
                     .put(Blocks.CRACKED_NETHER_BRICKS, 1f)
                     .put(Blocks.NETHER_BRICK_STAIRS, 1f)
@@ -334,12 +336,12 @@ public class BuildingPacks {
                     .put(Blocks.NETHER_BRICK_WALL, 1f)
                     .put(Blocks.NETHER_BRICK_FENCE, 1.7f) // 5/3
                     .put(Blocks.CHISELED_NETHER_BRICKS, 1f));
-            helper.register("red_netherbrick", new BlockPack(64*8, "buildingpacks:red_netherbrick")
+            helper.register("red_netherbrick", new BlockPack(64 * 8, "buildingpacks:red_netherbrick")
                     .put(Blocks.RED_NETHER_BRICKS, 1f)
                     .put(Blocks.RED_NETHER_BRICK_STAIRS, 1f)
                     .put(Blocks.RED_NETHER_BRICK_SLAB, 0.5f)
                     .put(Blocks.RED_NETHER_BRICK_WALL, 1f));
-            helper.register("sandstone", new BlockPack(64*8, "buildingpacks:sandstone")
+            helper.register("sandstone", new BlockPack(64 * 8, "buildingpacks:sandstone")
                     .put(Blocks.SANDSTONE, 1f)
                     .put(Blocks.SANDSTONE_STAIRS, 1f)
                     .put(Blocks.SANDSTONE_SLAB, 0.5f)
@@ -347,7 +349,7 @@ public class BuildingPacks {
                     .put(Blocks.CUT_SANDSTONE, 1f)
                     .put(Blocks.CHISELED_SANDSTONE, 1f)
                     .put(Blocks.CUT_SANDSTONE_SLAB, 0.5f));
-            helper.register("red_sandstone", new BlockPack(64*8, "buildingpacks:red_sandstone")
+            helper.register("red_sandstone", new BlockPack(64 * 8, "buildingpacks:red_sandstone")
                     .put(Blocks.RED_SANDSTONE, 1f)
                     .put(Blocks.RED_SANDSTONE_STAIRS, 1f)
                     .put(Blocks.RED_SANDSTONE_SLAB, 0.5f)
@@ -355,7 +357,7 @@ public class BuildingPacks {
                     .put(Blocks.CUT_RED_SANDSTONE, 1f)
                     .put(Blocks.CHISELED_RED_SANDSTONE, 1f)
                     .put(Blocks.CUT_RED_SANDSTONE_SLAB, 0.5f));
-            helper.register("quartz", new BlockPack(64*8, "buildingpacks:quartz")
+            helper.register("quartz", new BlockPack(64 * 8, "buildingpacks:quartz")
                     .put(Blocks.QUARTZ_BLOCK, 1f)
                     .put(Blocks.QUARTZ_BRICKS, 1f)
                     .put(Blocks.QUARTZ_PILLAR, 1f)
@@ -365,21 +367,21 @@ public class BuildingPacks {
                     .put(Blocks.SMOOTH_QUARTZ_STAIRS, 1f)
                     .put(Blocks.SMOOTH_QUARTZ_SLAB, 0.5f)
                     .put(Blocks.CHISELED_QUARTZ_BLOCK, 1f));
-            helper.register("purpur", new BlockPack(64*8, "buildingpacks:purpur")
+            helper.register("purpur", new BlockPack(64 * 8, "buildingpacks:purpur")
                     .put(Blocks.PURPUR_BLOCK, 1f)
                     .put(Blocks.PURPUR_STAIRS, 1f)
                     .put(Blocks.PURPUR_SLAB, 0.5f)
                     .put(Blocks.PURPUR_PILLAR, 1f));
-            helper.register("prismarine", new BlockPack(64*8, "buildingpacks:prismarine")
+            helper.register("prismarine", new BlockPack(64 * 8, "buildingpacks:prismarine")
                     .put(Blocks.PRISMARINE, 1f)
                     .put(Blocks.PRISMARINE_STAIRS, 1f)
                     .put(Blocks.PRISMARINE_SLAB, 0.5f)
                     .put(Blocks.PRISMARINE_WALL, 1f));
-            helper.register("prismarine_bricks", new BlockPack(64*8, "buildingpacks:prismarine_bricks")
+            helper.register("prismarine_bricks", new BlockPack(64 * 8, "buildingpacks:prismarine_bricks")
                     .put(Blocks.PRISMARINE_BRICKS, 1f)
                     .put(Blocks.PRISMARINE_BRICK_STAIRS, 1f)
                     .put(Blocks.PRISMARINE_BRICK_SLAB, 0.5f));
-            helper.register("dark_prismarine", new BlockPack(64*8, "buildingpacks:dark_prismarine")
+            helper.register("dark_prismarine", new BlockPack(64 * 8, "buildingpacks:dark_prismarine")
                     .put(Blocks.DARK_PRISMARINE, 1f)
                     .put(Blocks.DARK_PRISMARINE_STAIRS, 1f)
                     .put(Blocks.DARK_PRISMARINE_SLAB, 0.5f));
