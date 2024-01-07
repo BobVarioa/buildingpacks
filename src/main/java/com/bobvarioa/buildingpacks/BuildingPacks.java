@@ -81,158 +81,58 @@ public class BuildingPacks {
         });
     }
 
+    private Block getBlock(String id, String namespace) {
+        return ForgeRegistries.BLOCKS.getValue(new ResourceLocation(namespace, id));
+    }
+
+    private Block getBlock(String id) {
+        return getBlock(id, "minecraft");
+    }
+
+    private BlockPack createWood(String type) {
+        return createWood(type, false);
+    }
+
+    private BlockPack createWood(String type, boolean isNether) {
+        var blockPack = new BlockPack(64 * 8, "buildingpacks:" + type + "_wood");
+        blockPack.put(getBlock(type + "_planks"), 1f);
+        if (isNether) {
+            blockPack.put(getBlock(type + "_stem"), 4f, true)
+                    .put(getBlock("stripped_" + type + "_stem"), 4f, true)
+                    .put(getBlock(type + "_hyphae"), 1.4f, true) // 4/3
+                    .put(getBlock("stripped_" + type + "_hyphae"), 1.4f, true); // 4/3
+        } else {
+            blockPack.put(getBlock(type + "_log"), 4f, true)
+                    .put(getBlock("stripped_" + type + "_log"), 4f, true)
+                    .put(getBlock(type + "_wood"), 1.4f, true) // 4/3
+                    .put(getBlock("stripped_" + type + "_wood"), 1.4f, true); // 4/3
+        }
+
+        blockPack.put(getBlock(type + "_stairs"), 1f)
+                .put(getBlock(type + "_slab"), 0.5f)
+                .put(getBlock(type + "_fence"), 1.7f) // 5/3
+                .put(getBlock(type + "_fence_gate"), 4f)
+                .put(getBlock(type + "_door"), 2f)
+                .put(getBlock(type + "_pressure_plate"), 2f)
+                .put(getBlock(type + "_button"), 1f)
+                .put(getBlock(type + "_sign"), 2.2f) // 6.5/3
+                .put(getBlock(type + "_trapdoor"), 3f);
+
+        return blockPack;
+    }
+
     private void onRegister(final RegisterEvent event) {
         event.register(ResourceKey.createRegistryKey(new ResourceLocation("buildingpacks", "block_packs")), helper -> {
-            helper.register("oak_wood", new BlockPack(64 * 8, "buildingpacks:oak_wood")
-                    .put(Blocks.OAK_PLANKS, 1f)
-                    .put(Blocks.OAK_LOG, 4f, true)
-                    .put(Blocks.STRIPPED_OAK_LOG, 4f, true)
-                    .put(Blocks.OAK_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_OAK_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.OAK_STAIRS, 1f)
-                    .put(Blocks.OAK_SLAB, 0.5f)
-                    .put(Blocks.OAK_FENCE, 1.7f) // 5/3
-                    .put(Blocks.OAK_FENCE_GATE, 4f)
-                    .put(Blocks.OAK_DOOR, 2f)
-                    .put(Blocks.OAK_PRESSURE_PLATE, 2f)
-                    .put(Blocks.OAK_BUTTON, 1f)
-                    .put(Blocks.OAK_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.OAK_TRAPDOOR, 3f));
-            helper.register("spruce_wood", new BlockPack(64 * 8, "buildingpacks:spruce_wood")
-                    .put(Blocks.SPRUCE_PLANKS, 1f)
-                    .put(Blocks.SPRUCE_LOG, 4f, true)
-                    .put(Blocks.STRIPPED_SPRUCE_LOG, 4f, true)
-                    .put(Blocks.SPRUCE_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_SPRUCE_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.SPRUCE_STAIRS, 1f)
-                    .put(Blocks.SPRUCE_SLAB, 0.5f)
-                    .put(Blocks.SPRUCE_FENCE, 1.7f) // 5/3
-                    .put(Blocks.SPRUCE_FENCE_GATE, 4f)
-                    .put(Blocks.SPRUCE_DOOR, 2f)
-                    .put(Blocks.SPRUCE_PRESSURE_PLATE, 2f)
-                    .put(Blocks.SPRUCE_BUTTON, 1f)
-                    .put(Blocks.SPRUCE_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.SPRUCE_TRAPDOOR, 3f));
-            helper.register("acacia_wood", new BlockPack(64 * 8, "buildingpacks:acacia_wood")
-                    .put(Blocks.ACACIA_PLANKS, 1f)
-                    .put(Blocks.ACACIA_LOG, 4f, true)
-                    .put(Blocks.STRIPPED_ACACIA_LOG, 4f, true)
-                    .put(Blocks.OAK_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_ACACIA_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.ACACIA_STAIRS, 1f)
-                    .put(Blocks.ACACIA_SLAB, 0.5f)
-                    .put(Blocks.ACACIA_FENCE, 1.7f) // 5/3
-                    .put(Blocks.ACACIA_FENCE_GATE, 4f)
-                    .put(Blocks.ACACIA_DOOR, 2f)
-                    .put(Blocks.ACACIA_PRESSURE_PLATE, 2f)
-                    .put(Blocks.ACACIA_BUTTON, 1f)
-                    .put(Blocks.ACACIA_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.ACACIA_TRAPDOOR, 3f));
-            helper.register("birch_wood", new BlockPack(64 * 8, "buildingpacks:birch_wood")
-                    .put(Blocks.BIRCH_PLANKS, 1f)
-                    .put(Blocks.BIRCH_LOG, 4f, true)
-                    .put(Blocks.STRIPPED_BIRCH_LOG, 4f, true)
-                    .put(Blocks.OAK_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_BIRCH_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.BIRCH_STAIRS, 1f)
-                    .put(Blocks.BIRCH_SLAB, 0.5f)
-                    .put(Blocks.BIRCH_FENCE, 1.7f) // 5/3
-                    .put(Blocks.BIRCH_FENCE_GATE, 4f)
-                    .put(Blocks.BIRCH_DOOR, 2f)
-                    .put(Blocks.BIRCH_PRESSURE_PLATE, 2f)
-                    .put(Blocks.BIRCH_BUTTON, 1f)
-                    .put(Blocks.BIRCH_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.BIRCH_TRAPDOOR, 3f));
-            helper.register("dark_oak_wood", new BlockPack(64 * 8, "buildingpacks:dark_oak_wood")
-                    .put(Blocks.DARK_OAK_PLANKS, 1f)
-                    .put(Blocks.DARK_OAK_LOG, 4f, true)
-                    .put(Blocks.STRIPPED_DARK_OAK_LOG, 4f, true)
-                    .put(Blocks.OAK_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_DARK_OAK_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.DARK_OAK_STAIRS, 1f)
-                    .put(Blocks.DARK_OAK_SLAB, 0.5f)
-                    .put(Blocks.DARK_OAK_FENCE, 1.7f) // 5/3
-                    .put(Blocks.DARK_OAK_FENCE_GATE, 4f)
-                    .put(Blocks.DARK_OAK_DOOR, 2f)
-                    .put(Blocks.DARK_OAK_PRESSURE_PLATE, 2f)
-                    .put(Blocks.DARK_OAK_BUTTON, 1f)
-                    .put(Blocks.DARK_OAK_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.DARK_OAK_TRAPDOOR, 3f));
-            helper.register("jungle_wood", new BlockPack(64 * 8, "buildingpacks:jungle_wood")
-                    .put(Blocks.JUNGLE_PLANKS, 1f)
-                    .put(Blocks.JUNGLE_LOG, 4f, true)
-                    .put(Blocks.STRIPPED_JUNGLE_LOG, 4f, true)
-                    .put(Blocks.OAK_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_JUNGLE_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.JUNGLE_STAIRS, 1f)
-                    .put(Blocks.JUNGLE_SLAB, 0.5f)
-                    .put(Blocks.JUNGLE_FENCE, 1.7f) // 5/3
-                    .put(Blocks.JUNGLE_FENCE_GATE, 4f)
-                    .put(Blocks.JUNGLE_DOOR, 2f)
-                    .put(Blocks.JUNGLE_PRESSURE_PLATE, 2f)
-                    .put(Blocks.JUNGLE_BUTTON, 1f)
-                    .put(Blocks.JUNGLE_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.JUNGLE_TRAPDOOR, 3f));
-            helper.register("mangrove_wood", new BlockPack(64 * 8, "buildingpacks:mangrove_wood")
-                    .put(Blocks.MANGROVE_PLANKS, 1f)
-                    .put(Blocks.MANGROVE_LOG, 4f, true)
-                    .put(Blocks.STRIPPED_MANGROVE_LOG, 4f, true)
-                    .put(Blocks.OAK_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_MANGROVE_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.MANGROVE_STAIRS, 1f)
-                    .put(Blocks.MANGROVE_SLAB, 0.5f)
-                    .put(Blocks.MANGROVE_FENCE, 1.7f) // 5/3
-                    .put(Blocks.MANGROVE_FENCE_GATE, 4f)
-                    .put(Blocks.MANGROVE_DOOR, 2f)
-                    .put(Blocks.MANGROVE_PRESSURE_PLATE, 2f)
-                    .put(Blocks.MANGROVE_BUTTON, 1f)
-                    .put(Blocks.MANGROVE_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.MANGROVE_TRAPDOOR, 3f));
-            helper.register("cherry_wood", new BlockPack(64 * 8, "buildingpacks:cherry_wood")
-                    .put(Blocks.CHERRY_PLANKS, 1f)
-                    .put(Blocks.CHERRY_LOG, 4f, true)
-                    .put(Blocks.STRIPPED_CHERRY_LOG, 4f, true)
-                    .put(Blocks.OAK_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_CHERRY_WOOD, 1.4f, true) // 4/3
-                    .put(Blocks.CHERRY_STAIRS, 1f)
-                    .put(Blocks.CHERRY_SLAB, 0.5f)
-                    .put(Blocks.CHERRY_FENCE, 1.7f) // 5/3
-                    .put(Blocks.CHERRY_FENCE_GATE, 4f)
-                    .put(Blocks.CHERRY_DOOR, 2f)
-                    .put(Blocks.CHERRY_PRESSURE_PLATE, 2f)
-                    .put(Blocks.CHERRY_BUTTON, 1f)
-                    .put(Blocks.CHERRY_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.CHERRY_TRAPDOOR, 3f));
-            helper.register("crimson_wood", new BlockPack(64 * 8, "buildingpacks:crimson_wood")
-                    .put(Blocks.CRIMSON_PLANKS, 1f)
-                    .put(Blocks.CRIMSON_STEM, 4f, true)
-                    .put(Blocks.STRIPPED_CRIMSON_STEM, 4f, true)
-                    .put(Blocks.CRIMSON_HYPHAE, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_CRIMSON_HYPHAE, 1.4f, true) // 4/3
-                    .put(Blocks.CRIMSON_STAIRS, 1f)
-                    .put(Blocks.CRIMSON_SLAB, 0.5f)
-                    .put(Blocks.CRIMSON_FENCE, 1.7f) // 5/3
-                    .put(Blocks.CRIMSON_FENCE_GATE, 4f)
-                    .put(Blocks.CRIMSON_DOOR, 2f)
-                    .put(Blocks.CRIMSON_PRESSURE_PLATE, 2f)
-                    .put(Blocks.CRIMSON_BUTTON, 1f)
-                    .put(Blocks.CRIMSON_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.CRIMSON_TRAPDOOR, 3f));
-            helper.register("warped_wood", new BlockPack(64 * 8, "buildingpacks:warped_wood")
-                    .put(Blocks.WARPED_PLANKS, 1f)
-                    .put(Blocks.WARPED_STEM, 4f, true)
-                    .put(Blocks.STRIPPED_WARPED_STEM, 4f, true)
-                    .put(Blocks.WARPED_HYPHAE, 1.4f, true) // 4/3
-                    .put(Blocks.STRIPPED_WARPED_HYPHAE, 1.4f, true) // 4/3
-                    .put(Blocks.WARPED_STAIRS, 1f)
-                    .put(Blocks.WARPED_SLAB, 0.5f)
-                    .put(Blocks.WARPED_FENCE, 1.7f) // 5/3
-                    .put(Blocks.WARPED_FENCE_GATE, 4f)
-                    .put(Blocks.WARPED_DOOR, 2f)
-                    .put(Blocks.WARPED_PRESSURE_PLATE, 2f)
-                    .put(Blocks.WARPED_BUTTON, 1f)
-                    .put(Blocks.WARPED_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.WARPED_TRAPDOOR, 3f));
+            helper.register("oak_wood", createWood("oak"));
+            helper.register("spruce_wood", createWood("spruce"));
+            helper.register("acacia_wood", createWood("acacia"));
+            helper.register("birch_wood", createWood("birch"));
+            helper.register("dark_oak_wood", createWood("dark_oak"));
+            helper.register("jungle_wood", createWood("jungle"));
+            helper.register("mangrove_wood", createWood("mangrove"));
+            helper.register("cherry_wood", createWood("cherry"));
+            helper.register("crimson_wood", createWood("crimson", true));
+            helper.register("warped_wood", createWood("warped", true));
             helper.register("bamboo_wood", new BlockPack(64 * 8, "buildingpacks:bamboo_wood")
                     .put(Blocks.BAMBOO_BLOCK, 2f, true)
                     .put(Blocks.BAMBOO_PLANKS, 1f)
