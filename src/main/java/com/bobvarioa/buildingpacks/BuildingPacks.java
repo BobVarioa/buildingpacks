@@ -14,9 +14,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.*;
 import org.slf4j.Logger;
@@ -286,6 +285,10 @@ public class BuildingPacks {
                     .put(Blocks.DARK_PRISMARINE_STAIRS, 1f)
                     .put(Blocks.DARK_PRISMARINE_SLAB, 0.5f));
             // copper??? waxing and oxidation make this complicated
+
+            if (ModList.get().isLoaded("kubejs")) {
+                BuildingPacksKubeJS.REGISTER.post(new BuildingPacksKubeJS.BlockPackRegisterEvent(helper));
+            }
         });
     }
 }
