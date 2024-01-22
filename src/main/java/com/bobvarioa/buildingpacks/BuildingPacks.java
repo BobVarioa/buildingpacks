@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.repository.Pack;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -80,210 +81,224 @@ public class BuildingPacks {
         });
     }
 
-    private Block getBlock(String id, String namespace) {
+    private static Block getBlock(String id, String namespace) {
         return ForgeRegistries.BLOCKS.getValue(new ResourceLocation(namespace, id));
     }
 
-    private Block getBlock(String id) {
+    private static Block getBlock(String id) {
         return getBlock(id, "minecraft");
     }
 
-    private BlockPack createWood(String type) {
-        return createWood(type, false);
-    }
 
-    private BlockPack createWood(String type, boolean isNether) {
-        var blockPack = new BlockPack(64 * 8, "buildingpacks:" + type + "_wood");
-        blockPack.put(getBlock(type + "_planks"), 1f);
-        if (isNether) {
-            blockPack.put(getBlock(type + "_stem"), 4f, true)
-                    .put(getBlock("stripped_" + type + "_stem"), 4f, true)
-                    .put(getBlock(type + "_hyphae"), 1.4f, true) // 4/3
-                    .put(getBlock("stripped_" + type + "_hyphae"), 1.4f, true); // 4/3
-        } else {
-            blockPack.put(getBlock(type + "_log"), 4f, true)
-                    .put(getBlock("stripped_" + type + "_log"), 4f, true)
-                    .put(getBlock(type + "_wood"), 1.4f, true) // 4/3
-                    .put(getBlock("stripped_" + type + "_wood"), 1.4f, true); // 4/3
+    public static class PackBuilder {
+        PackBuilder() {
         }
 
-        blockPack.put(getBlock(type + "_stairs"), 1f)
-                .put(getBlock(type + "_slab"), 0.5f)
-                .put(getBlock(type + "_fence"), 1.7f) // 5/3
-                .put(getBlock(type + "_fence_gate"), 4f)
-                .put(getBlock(type + "_door"), 2f)
-                .put(getBlock(type + "_pressure_plate"), 2f)
-                .put(getBlock(type + "_button"), 1f)
-                .put(getBlock(type + "_sign"), 2.2f) // 6.5/3
-                .put(getBlock(type + "_trapdoor"), 3f);
+        public String namespace = "minecraft";
 
-        return blockPack;
+        public BlockPack blockPack;
+
+        public static PackBuilder create(String id, int material) {
+            var pack = new PackBuilder();
+            pack.blockPack = new BlockPack(material, "buildingpacks:"+ id);
+            return pack;
+        }
+
+        public PackBuilder slabStairs(String type) {
+            put(type + "_stairs", 1f);
+            put(type + "_slab", 0.5f);
+            return this;
+        }
+
+        public PackBuilder wallSlabStairs(String type, boolean isFence) {
+            slabStairs(type);
+
+            if (isFence) {
+                put(type + "_fence", 1.7f); // 5/3
+                put(type + "_fence_gate", 4f);
+            } else {
+                this.put(type + "_wall", 1f);
+            }
+
+            return this;
+        }
+
+        public PackBuilder pressurePlate(String type) {
+            put(type + "_pressure_plate", 2f);
+            return this;
+        }
+
+        public PackBuilder button(String type) {
+            put(type + "_button", 1f);
+            return this;
+        }
+
+        public PackBuilder put(String str, float material) {
+            blockPack.put(getBlock(str, namespace), material);
+            return this;
+        }
+
+        public PackBuilder put(String str, float material, boolean acceptOnly) {
+            blockPack.put(getBlock(str, namespace), material, acceptOnly);
+            return this;
+        }
+
+        public BlockPack build() {
+            return blockPack;
+        }
+
+        public static BlockPack createWood(String type) {
+            return createWood(type, false);
+        }
+
+        public static BlockPack createWood(String type, boolean isNether) {
+            var pack = PackBuilder.create("buildingpacks:" + type + "_wood", 64 * 8);
+
+            pack.put(type + "_planks", 1f);
+            if (isNether) {
+                pack.put(type + "_stem", 4f, true)
+                        .put("stripped_" + type + "_stem", 4f, true)
+                        .put(type + "_hyphae", 1.4f, true) // 4/3
+                        .put("stripped_" + type + "_hyphae", 1.4f, true); // 4/3
+            } else {
+                pack.put(type + "_log", 4f, true)
+                        .put("stripped_" + type + "_log", 4f, true)
+                        .put(type + "_wood", 1.4f, true) // 4/3
+                        .put("stripped_" + type + "_wood", 1.4f, true); // 4/3
+            }
+
+            pack.wallSlabStairs(type, true)
+                    .pressurePlate(type)
+                    .button(type)
+                    .put(type + "_door", 2f)
+                    .put(type + "_sign", 2.2f)
+                    .put(type + "_trapdoor", 3f);
+
+            return pack.build();
+        }
+
+        public static BlockPack createStone(String type) {
+            return PackBuilder.create("buildingpacks:" + type, 64 * 8)
+                    .put(type, 1f)
+                    .wallSlabStairs(type, false)
+                    .put("polished_" + type, 1f)
+                    .slabStairs("polished_" + type)
+                    .build();
+        }
+
+        public static BlockPack createWallSlabStairs(String type, boolean addS) {
+            return PackBuilder.create("buildingpacks:" + type, 64 * 8)
+                    .put(type + (addS ? "s" : ""), 1f)
+                    .wallSlabStairs(type, false)
+                    .build();
+        }
+
+        public static BlockPack createSlabStairs(String type, boolean addS) {
+            return PackBuilder.create("buildingpacks:" + type, 64 * 8)
+                    .put(type + (addS ? "s" : ""), 1f)
+                    .slabStairs(type)
+                    .build();
+        }
     }
 
     private void onRegister(final RegisterEvent event) {
         event.register(ResourceKey.createRegistryKey(new ResourceLocation("buildingpacks", "block_packs")), helper -> {
-            helper.register("oak_wood", createWood("oak"));
-            helper.register("spruce_wood", createWood("spruce"));
-            helper.register("acacia_wood", createWood("acacia"));
-            helper.register("birch_wood", createWood("birch"));
-            helper.register("dark_oak_wood", createWood("dark_oak"));
-            helper.register("jungle_wood", createWood("jungle"));
-            helper.register("mangrove_wood", createWood("mangrove"));
-            helper.register("cherry_wood", createWood("cherry"));
-            helper.register("crimson_wood", createWood("crimson", true));
-            helper.register("warped_wood", createWood("warped", true));
-            helper.register("bamboo_wood", new BlockPack(64 * 8, "buildingpacks:bamboo_wood")
-                    .put(Blocks.BAMBOO_BLOCK, 2f, true)
-                    .put(Blocks.BAMBOO_PLANKS, 1f)
-                    .put(Blocks.BAMBOO_STAIRS, 1f)
-                    .put(Blocks.BAMBOO_SLAB, 0.5f)
-                    .put(Blocks.BAMBOO_FENCE, 1.7f) // 5/3
-                    .put(Blocks.BAMBOO_FENCE_GATE, 4f)
-                    .put(Blocks.BAMBOO_DOOR, 2f)
-                    .put(Blocks.BAMBOO_PRESSURE_PLATE, 2f)
-                    .put(Blocks.BAMBOO_BUTTON, 1f)
-                    .put(Blocks.BAMBOO_SIGN, 2.2f) // 6.5/3
-                    .put(Blocks.BAMBOO_TRAPDOOR, 3f));
-            helper.register("stone", new BlockPack(64 * 8, "buildingpacks:stone")
-                    .put(Blocks.STONE, 1f)
-                    .put(Blocks.STONE_STAIRS, 1f)
-                    .put(Blocks.STONE_SLAB, 0.5f)
-                    .put(Blocks.STONE_PRESSURE_PLATE, 2f)
-                    .put(Blocks.STONE_BUTTON, 1f)
-                    .put(Blocks.STONE_BRICKS, 1f)
-                    .put(Blocks.CRACKED_STONE_BRICKS, 1f)
-                    .put(Blocks.STONE_BRICK_STAIRS, 1f)
-                    .put(Blocks.STONE_BRICK_SLAB, 0.5f)
-                    .put(Blocks.STONE_BRICK_WALL, 1f)
-                    .put(Blocks.CHISELED_STONE_BRICKS, 1f)
-                    .put(Blocks.SMOOTH_STONE, 1f)
-                    .put(Blocks.SMOOTH_STONE_SLAB, 0.5f));
-            helper.register("deepslate", new BlockPack(64 * 8, "buildingpacks:deepslate")
-                    .put(Blocks.DEEPSLATE, 1f)
-                    .put(Blocks.DEEPSLATE_BRICKS, 1f)
-                    .put(Blocks.CRACKED_DEEPSLATE_BRICKS, 1f)
-                    .put(Blocks.DEEPSLATE_BRICK_STAIRS, 1f)
-                    .put(Blocks.DEEPSLATE_BRICK_SLAB, 0.5f)
-                    .put(Blocks.DEEPSLATE_BRICK_WALL, 1f)
-                    .put(Blocks.DEEPSLATE_TILES, 1f)
-                    .put(Blocks.DEEPSLATE_TILE_SLAB, 0.5f)
-                    .put(Blocks.DEEPSLATE_TILE_STAIRS, 1f)
-                    .put(Blocks.DEEPSLATE_TILE_WALL, 1f)
-                    .put(Blocks.COBBLED_DEEPSLATE, 1f)
-                    .put(Blocks.COBBLED_DEEPSLATE_SLAB, 0.5f)
-                    .put(Blocks.COBBLED_DEEPSLATE_STAIRS, 1f)
-                    .put(Blocks.COBBLED_DEEPSLATE_WALL, 1f)
-                    .put(Blocks.POLISHED_DEEPSLATE, 1f)
-                    .put(Blocks.POLISHED_DEEPSLATE_STAIRS, 1f)
-                    .put(Blocks.POLISHED_DEEPSLATE_SLAB, 0.5f));
-            helper.register("cobblestone", new BlockPack(64 * 8, "buildingpacks:cobblestone")
-                    .put(Blocks.COBBLESTONE, 1f)
-                    .put(Blocks.COBBLESTONE_STAIRS, 1f)
-                    .put(Blocks.COBBLESTONE_SLAB, 0.5f)
-                    .put(Blocks.COBBLESTONE_WALL, 1f));
-            helper.register("blackstone", new BlockPack(64 * 8, "buildingpacks:blackstone")
-                    .put(Blocks.BLACKSTONE, 1f)
-                    .put(Blocks.BLACKSTONE_STAIRS, 1f)
-                    .put(Blocks.BLACKSTONE_SLAB, 0.5f)
-                    .put(Blocks.POLISHED_BLACKSTONE, 1f)
-                    .put(Blocks.POLISHED_BLACKSTONE_STAIRS, 1f)
-                    .put(Blocks.POLISHED_BLACKSTONE_SLAB, 0.5f)
-                    .put(Blocks.POLISHED_BLACKSTONE_WALL, 1f)
-                    .put(Blocks.POLISHED_BLACKSTONE_BUTTON, 1f)
-                    .put(Blocks.POLISHED_BLACKSTONE_PRESSURE_PLATE, 1f)
-                    .put(Blocks.POLISHED_BLACKSTONE_BRICKS, 1f)
-                    .put(Blocks.CRACKED_POLISHED_BLACKSTONE_BRICKS, 1f)
-                    .put(Blocks.POLISHED_BLACKSTONE_BRICK_STAIRS, 1f)
-                    .put(Blocks.POLISHED_BLACKSTONE_BRICK_SLAB, 0.5f)
-                    .put(Blocks.POLISHED_BLACKSTONE_BRICK_WALL, 1f)
-                    .put(Blocks.CHISELED_POLISHED_BLACKSTONE, 1f));
-            helper.register("end_stone", new BlockPack(64 * 8, "buildingpacks:end_stone")
-                    .put(Blocks.END_STONE, 1f)
-                    .put(Blocks.END_STONE_BRICKS, 1f)
-                    .put(Blocks.END_STONE_BRICK_STAIRS, 1f)
-                    .put(Blocks.END_STONE_BRICK_SLAB, 0.5f)
-                    .put(Blocks.END_STONE_BRICK_WALL, 1f));
-            helper.register("granite", new BlockPack(64 * 8, "buildingpacks:granite")
-                    .put(Blocks.GRANITE, 1f)
-                    .put(Blocks.GRANITE_STAIRS, 1f)
-                    .put(Blocks.GRANITE_SLAB, 0.5f)
-                    .put(Blocks.GRANITE_WALL, 1f)
-                    .put(Blocks.POLISHED_GRANITE, 1f)
-                    .put(Blocks.POLISHED_GRANITE_STAIRS, 1f)
-                    .put(Blocks.POLISHED_GRANITE_SLAB, 0.5f));
-            helper.register("diorite", new BlockPack(64 * 8, "buildingpacks:diorite")
-                    .put(Blocks.DIORITE, 1f)
-                    .put(Blocks.DIORITE_STAIRS, 1f)
-                    .put(Blocks.DIORITE_SLAB, 0.5f)
-                    .put(Blocks.DIORITE_WALL, 1f)
-                    .put(Blocks.POLISHED_DIORITE, 1f)
-                    .put(Blocks.POLISHED_DIORITE_STAIRS, 1f)
-                    .put(Blocks.POLISHED_DIORITE_SLAB, 0.5f));
-            helper.register("andesite", new BlockPack(64 * 8, "buildingpacks:andesite")
-                    .put(Blocks.ANDESITE, 1f)
-                    .put(Blocks.ANDESITE_STAIRS, 1f)
-                    .put(Blocks.ANDESITE_SLAB, 0.5f)
-                    .put(Blocks.ANDESITE_WALL, 1f)
-                    .put(Blocks.POLISHED_ANDESITE, 1f)
-                    .put(Blocks.POLISHED_ANDESITE_STAIRS, 1f)
-                    .put(Blocks.POLISHED_ANDESITE_SLAB, 0.5f));
-            helper.register("netherbrick", new BlockPack(64 * 8, "buildingpacks:netherbrick")
-                    .put(Blocks.NETHER_BRICKS, 1f)
-                    .put(Blocks.CRACKED_NETHER_BRICKS, 1f)
-                    .put(Blocks.NETHER_BRICK_STAIRS, 1f)
-                    .put(Blocks.NETHER_BRICK_SLAB, 0.5f)
-                    .put(Blocks.NETHER_BRICK_WALL, 1f)
-                    .put(Blocks.NETHER_BRICK_FENCE, 1.7f) // 5/3
-                    .put(Blocks.CHISELED_NETHER_BRICKS, 1f));
-            helper.register("red_netherbrick", new BlockPack(64 * 8, "buildingpacks:red_netherbrick")
-                    .put(Blocks.RED_NETHER_BRICKS, 1f)
-                    .put(Blocks.RED_NETHER_BRICK_STAIRS, 1f)
-                    .put(Blocks.RED_NETHER_BRICK_SLAB, 0.5f)
-                    .put(Blocks.RED_NETHER_BRICK_WALL, 1f));
-            helper.register("sandstone", new BlockPack(64 * 8, "buildingpacks:sandstone")
-                    .put(Blocks.SANDSTONE, 1f)
-                    .put(Blocks.SANDSTONE_STAIRS, 1f)
-                    .put(Blocks.SANDSTONE_SLAB, 0.5f)
-                    .put(Blocks.SANDSTONE_WALL, 1f)
-                    .put(Blocks.CUT_SANDSTONE, 1f)
-                    .put(Blocks.CHISELED_SANDSTONE, 1f)
-                    .put(Blocks.CUT_SANDSTONE_SLAB, 0.5f));
-            helper.register("red_sandstone", new BlockPack(64 * 8, "buildingpacks:red_sandstone")
-                    .put(Blocks.RED_SANDSTONE, 1f)
-                    .put(Blocks.RED_SANDSTONE_STAIRS, 1f)
-                    .put(Blocks.RED_SANDSTONE_SLAB, 0.5f)
-                    .put(Blocks.RED_SANDSTONE_WALL, 1f)
-                    .put(Blocks.CUT_RED_SANDSTONE, 1f)
-                    .put(Blocks.CHISELED_RED_SANDSTONE, 1f)
-                    .put(Blocks.CUT_RED_SANDSTONE_SLAB, 0.5f));
-            helper.register("quartz", new BlockPack(64 * 8, "buildingpacks:quartz")
-                    .put(Blocks.QUARTZ_BLOCK, 1f)
-                    .put(Blocks.QUARTZ_BRICKS, 1f)
-                    .put(Blocks.QUARTZ_PILLAR, 1f)
-                    .put(Blocks.QUARTZ_STAIRS, 1f)
-                    .put(Blocks.QUARTZ_SLAB, 0.5f)
-                    .put(Blocks.SMOOTH_QUARTZ, 1f)
-                    .put(Blocks.SMOOTH_QUARTZ_STAIRS, 1f)
-                    .put(Blocks.SMOOTH_QUARTZ_SLAB, 0.5f)
-                    .put(Blocks.CHISELED_QUARTZ_BLOCK, 1f));
-            helper.register("purpur", new BlockPack(64 * 8, "buildingpacks:purpur")
-                    .put(Blocks.PURPUR_BLOCK, 1f)
-                    .put(Blocks.PURPUR_STAIRS, 1f)
-                    .put(Blocks.PURPUR_SLAB, 0.5f)
-                    .put(Blocks.PURPUR_PILLAR, 1f));
-            helper.register("prismarine", new BlockPack(64 * 8, "buildingpacks:prismarine")
-                    .put(Blocks.PRISMARINE, 1f)
-                    .put(Blocks.PRISMARINE_STAIRS, 1f)
-                    .put(Blocks.PRISMARINE_SLAB, 0.5f)
-                    .put(Blocks.PRISMARINE_WALL, 1f));
-            helper.register("prismarine_bricks", new BlockPack(64 * 8, "buildingpacks:prismarine_bricks")
-                    .put(Blocks.PRISMARINE_BRICKS, 1f)
-                    .put(Blocks.PRISMARINE_BRICK_STAIRS, 1f)
-                    .put(Blocks.PRISMARINE_BRICK_SLAB, 0.5f));
-            helper.register("dark_prismarine", new BlockPack(64 * 8, "buildingpacks:dark_prismarine")
-                    .put(Blocks.DARK_PRISMARINE, 1f)
-                    .put(Blocks.DARK_PRISMARINE_STAIRS, 1f)
-                    .put(Blocks.DARK_PRISMARINE_SLAB, 0.5f));
+            helper.register("oak_wood", PackBuilder.createWood("oak"));
+            helper.register("spruce_wood", PackBuilder.createWood("spruce"));
+            helper.register("acacia_wood", PackBuilder.createWood("acacia"));
+            helper.register("birch_wood", PackBuilder.createWood("birch"));
+            helper.register("dark_oak_wood", PackBuilder.createWood("dark_oak"));
+            helper.register("jungle_wood", PackBuilder.createWood("jungle"));
+            helper.register("mangrove_wood", PackBuilder.createWood("mangrove"));
+            helper.register("cherry_wood", PackBuilder.createWood("cherry"));
+            helper.register("crimson_wood", PackBuilder.createWood("crimson", true));
+            helper.register("warped_wood", PackBuilder.createWood("warped", true));
+            helper.register("bamboo_wood", PackBuilder.create("bamboo_wood", 64 * 8)
+                    .put("bamboo_block", 2f, true)
+                    .put("bamboo_planks", 1f)
+                    .wallSlabStairs("bamboo", true)
+                    .pressurePlate("bamboo")
+                    .button("bamboo")
+                    .put("bamboo_door", 2f)
+                    .put("bamboo_sign", 2.2f)
+                    .put("bamboo_trapdoor", 3f)
+                    .build());
+            helper.register("stone", PackBuilder.create("stone", 64 * 8)
+                    .put("stone", 1f)
+                    .slabStairs("stone")
+                    .pressurePlate("stone")
+                    .button("stone")
+                    .put("stone_bricks", 1f)
+                    .wallSlabStairs("stone_brick", false)
+                    .put("chiseled_stone_bricks", 1f)
+                    .put("smooth_stone", 1f)
+                    .put("smooth_stone_slab", 0.5f)
+                    .build());
+            helper.register("deepslate", PackBuilder.create("deepslate", 64 * 8)
+                    .put("deepslate", 1f)
+                    .put("deepslate_bricks", 1f)
+                    .wallSlabStairs("deepslate_brick", false)
+                    .put("deepslate_tiles", 1f)
+                    .wallSlabStairs("deepslate_tile", false)
+                    .put("cobbled_deepslate", 1f)
+                    .wallSlabStairs("cobbled_deepslate", false)
+                    .put("polished_deepslate", 1f)
+                    .slabStairs("polished_deepslate")
+                    .build());
+            helper.register("cobblestone", PackBuilder.createWallSlabStairs("cobblestone", false));
+            helper.register("blackstone", PackBuilder.create("blackstone", 64 * 8)
+                    .put("blackstone", 1f)
+                    .slabStairs("blackstone")
+                    .put("polished_blackstone", 1f)
+                    .put("chiseled_polished_blackstone", 1f)
+                    .wallSlabStairs("polished_blackstone", false)
+                    .button("polished_blackstone")
+                    .pressurePlate("polished_blackstone")
+                    .put("polished_blackstone_bricks", 1f)
+                    .put("cracked_polished_blackstone_bricks", 1f)
+                    .wallSlabStairs("polished_blackstone_brick", false)
+                    .build());
+            helper.register("end_stone", PackBuilder.create("end_stone", 64 * 8)
+                    .put("end_stone", 1f)
+                    .put("end_stone_bricks", 1f)
+                    .wallSlabStairs("end_stone_brick", false));
+            helper.register("granite", PackBuilder.createStone("granite"));
+            helper.register("diorite", PackBuilder.createStone("diorite"));
+            helper.register("andesite", PackBuilder.createStone("andesite"));
+            helper.register("netherbrick", PackBuilder.create("netherbrick", 64 * 8)
+                    .put("nether_bricks", 1f)
+                    .wallSlabStairs("nether_brick", false)
+                    .put("nether_brick_fence", 1.7f) // 5/3
+                    .put("chiseled_nether_bricks", 1f)
+                    .put("cracked_nether_bricks", 1f));
+            helper.register("red_netherbrick", PackBuilder.createWallSlabStairs("red_netherbrick", true));
+            helper.register("sandstone", PackBuilder.create("sandstone", 64 * 8)
+                    .put("sandstone", 1f)
+                    .wallSlabStairs("sandstone", false)
+                    .put("cut_sandstone", 1f)
+                    .put("cut_sandstone_slab", 0.5f)
+                    .put("chiseled_sandstone", 1f));
+            helper.register("red_sandstone", PackBuilder.create("red_sandstone", 64 * 8)
+                    .put("red_sandstone", 1f)
+                    .wallSlabStairs("red_sandstone", false)
+                    .put("cut_red_sandstone", 1f)
+                    .put("cut_red_sandstone_slab", 0.5f)
+                    .put("chiseled_red_sandstone", 1f));
+            helper.register("quartz", PackBuilder.create("quartz", 64 * 8)
+                    .put("quartz_block", 1f)
+                    .slabStairs("quartz")
+                    .put("quartz_bricks", 1f)
+                    .put("quartz_pillar", 1f)
+                    .put("smooth_quartz", 1f)
+                    .slabStairs("smooth_quartz")
+                    .put("chiseled_quartz_block", 1f));
+            helper.register("purpur", PackBuilder.create("purpur", 64 * 8)
+                    .put("purpur", 1f)
+                    .put("purpur_pillar", 1f)
+                    .slabStairs("purpur"));
+            helper.register("prismarine", PackBuilder.createWallSlabStairs("prismarine", false));
+            helper.register("prismarine_bricks", PackBuilder.createSlabStairs("prismarine_bricks", true));
+            helper.register("dark_prismarine", PackBuilder.createSlabStairs("dark_prismarine", false));
             // copper??? waxing and oxidation make this complicated
 
             if (ModList.get().isLoaded("kubejs")) {
