@@ -27,6 +27,7 @@
   "item.buildingpacks.pack.minecraft.prismarine": "Prismarine",
   "item.buildingpacks.pack.minecraft.prismarine_brick":  "Prismarine Brick",
   "item.buildingpacks.pack.minecraft.dark_prismarine": "Dark Prismarine",
+  "item.buildingpacks.pack.minecraft.mud": "Mud",
   "item.buildingpacks.pack.biomesoplenty.fir": "Fir",
   "item.buildingpacks.pack.biomesoplenty.redwood": "Redwood",
   "item.buildingpacks.pack.biomesoplenty.mahogany": "Mahogany",
@@ -55,6 +56,7 @@
   "item.buildingpacks.pack.tconstruct.bloodshroom": "Bloodshroom",
   "item.buildingpacks.pack.tconstruct.enderbark": "Enderbark",
   "item.buildingpacks.pack.tconstruct.seared": "Seared",
+  "item.buildingpacks.pack.tconstruct.scorched": "Scorched",
   "item.buildingpacks.pack": "Building Pack",
   "item.buildingpacks.tooltip.material": "Material",
   "creative.block_packs": "Building Packs"
