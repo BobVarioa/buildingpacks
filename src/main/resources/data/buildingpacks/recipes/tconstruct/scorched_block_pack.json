@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " / ",
+    "IXI",
+    "III"
+  ],
+  "key": {
+    "X": {
+      "item": "tconstruct:scorched_bricks"
+    },
+    "/": {
+      "item": "minecraft:stick"
+    },
+    "I" :  {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "buildingpacks:block_pack",
+    "nbt": {
+      "id": "tconstruct:scorched"
+    }
+  },
+  "conditions": [
+    {
+      "type": "forge:mod_loaded",
+      "modid": "tconstruct"
+    }
+  ]
+}

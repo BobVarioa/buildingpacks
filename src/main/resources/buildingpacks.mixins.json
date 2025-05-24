@@ -5,8 +5,13 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "buildingpacks.refmap.json",
   "mixins": [
+    "effortlessbuilding.BlockEntryMixin",
+    "effortlessbuilding.CompatHelperMixin",
+    "effortlessbuilding.InventoryHelperMixin",
+    "effortlessbuilding.BlockPlacerHelperMixin"
   ],
   "client": [
+    "effortlessbuilding.BuilderChainMixin"
   ],
   "injectors": {
     "defaultRequire": 1

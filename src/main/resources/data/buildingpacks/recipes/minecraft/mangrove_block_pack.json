@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " / ",
+    "IXI",
+    "III"
+  ],
+  "key": {
+    "X": {
+      "item": "minecraft:mangrove_planks"
+    },
+    "/": {
+      "item": "minecraft:stick"
+    },
+    "I" :  {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "buildingpacks:block_pack",
+    "nbt": {
+      "id": "minecraft:mangrove"
+    }
+  }
+}

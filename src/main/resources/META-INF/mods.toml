@@ -63,7 +63,7 @@ description='''${mod_description}'''
    side="BOTH"
 [[dependencies.${mod_id}]]
    modId = "kubejs"
-   mandatory = true
+   mandatory = false
    versionRange = "[${kubejs_version},)"
    ordering = "NONE"
    side = "BOTH"

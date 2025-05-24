@@ -1,6 +1,8 @@
 package com.bobvarioa.buildingpacks;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,9 +16,9 @@ public class BlockPack {
     public static Map<Block, Integer> revBlock = new HashMap<>();
 
     public static List<BlockPack> blockPacks = new ArrayList<>();
-    public String id;
+    public ResourceLocation id;
 
-    public BlockPack(int pMaxMaterial, String id) {
+    public BlockPack(int pMaxMaterial, ResourceLocation id) {
         maxMaterial = pMaxMaterial;
         priceMap = new HashMap<>();
         blocks = new ArrayList<>();
@@ -46,6 +48,7 @@ public class BlockPack {
     }
 
     public Block getBlock(int n) {
+        if (n >= blocks.size()) return Blocks.AIR;
         return blocks.get(n);
     }
     public int getBlockIndex(Block block) {

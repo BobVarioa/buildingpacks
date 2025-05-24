@@ -1,1 +1,1 @@
-com.bobvarioa.buildingpacks.BuildingPacksKubeJS
+com.bobvarioa.buildingpacks.compat.kubejs.BuildingPacksKubeJS
