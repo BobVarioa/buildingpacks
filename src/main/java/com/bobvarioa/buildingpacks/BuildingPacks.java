@@ -1,6 +1,5 @@
 package com.bobvarioa.buildingpacks;
 
-import com.bobvarioa.buildingpacks.client.BlockPackClientEvents;
 import com.bobvarioa.buildingpacks.compat.kubejs.BuildingPacksKubeJS;
 import com.bobvarioa.buildingpacks.item.BlockPackItem;
 import com.bobvarioa.buildingpacks.network.BlockPackPacketHandler;
@@ -48,7 +47,7 @@ public class BuildingPacks {
 
     public static final RegistryObject<CreativeModeTab> BUILDING_PACKS_TAB = CREATIVE_MODE_TABS.register("block_packs", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> blockPackOf(new ResourceLocation(MODID, "oak")))
+            .icon(() -> blockPackOf(new ResourceLocation("minecraft", "oak")))
             .displayItems((parameters, output) -> {
                 output.accept(ModItems.WRENCH.get());
 //                output.accept(ModItems.CLIPBOARD.get());
@@ -463,7 +462,7 @@ public class BuildingPacks {
 
 
             if (ModList.get().isLoaded("kubejs")) {
-                BuildingPacksKubeJS.REGISTER.post(new BuildingPacksKubeJS.BlockPackRegisterEvent(helper));
+                BuildingPacksKubeJS.load(helper);
             }
         });
     }

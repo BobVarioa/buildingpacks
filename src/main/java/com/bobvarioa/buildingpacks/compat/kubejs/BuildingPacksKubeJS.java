@@ -5,6 +5,7 @@ import dev.latvian.mods.kubejs.KubeJSPlugin;
 import dev.latvian.mods.kubejs.event.EventGroup;
 import dev.latvian.mods.kubejs.event.EventHandler;
 import dev.latvian.mods.kubejs.event.EventJS;
+import dev.latvian.mods.rhino.ast.Block;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.registries.RegisterEvent;
 
@@ -36,5 +37,9 @@ public class BuildingPacksKubeJS extends KubeJSPlugin {
     @Override
     public void registerEvents() {
         MAIN.register();
+    }
+
+    public static void load(RegisterEvent.RegisterHelper<BlockPack> helper) {
+        BuildingPacksKubeJS.REGISTER.post(new BuildingPacksKubeJS.BlockPackRegisterEvent(helper));
     }
 }

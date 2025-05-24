@@ -124,6 +124,7 @@ dependencies {
     implementation fg.deobf("dev.latvian.mods:rhino-forge:$rhino_version")
 
     implementation fg.deobf("curse.maven:effortless-building-302113:6330928")
+    implementation fg.deobf("curse.maven:additional-placements-674852:6556599")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }

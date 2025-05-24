@@ -82,9 +82,18 @@ public class BlockPackItem extends BlockItem {
         return blockPack.getMaxMaterial() * this.mult;
     }
 
-
     public float getMaterial(ItemStack stack) {
         return stack.getOrCreateTag().getFloat("material");
+    }
+
+    public static Block getSelectedBlock(ItemStack stack) {
+        var tag = stack.getTag();
+        var data = getData(stack);
+        if (tag != null && data != null) {
+            var index = tag.getInt("index");
+            return data.getBlock(index);
+        }
+        return Blocks.AIR;
     }
 
     @Override
@@ -158,41 +167,6 @@ public class BlockPackItem extends BlockItem {
         }
         player.drop(stack, true);
     }
-
-//    @Override
-//    public InteractionResult useOn(UseOnContext pContext) {
-//        var stack = pContext.getItemInHand();
-//        var data = getData(stack);
-//        float mat = getMaterial(stack);
-//        Level level = pContext.getLevel();
-//        CompoundTag tag = stack.getOrCreateTag();
-//        if (pContext.getHand() == InteractionHand.MAIN_HAND) {
-//            Player player = pContext.getPlayer();
-//            if (player == null) return InteractionResult.PASS;
-//            if (player.isCrouching()) {
-//                // here
-//            }
-//            if (mat > 0) {
-//                var index = tag.getInt("index");
-//                if (index >= 0 && index < data.length()) {
-//                    Block block = data.getBlock(index);
-//                    float price = data.getPrice(block);
-//                    BlockItem item = (BlockItem) block.asItem();
-//                    if (mat - price >= 0) {
-//                        BlockPlaceContext cxt = new BlockPlaceContext(pContext.getLevel(), pContext.getPlayer(), pContext.getHand(), new ItemStack(item), new BlockHitResult(pContext.getClickLocation(), pContext.getClickedFace(), pContext.getClickedPos(), pContext.isInside()));
-//
-//                        var res = item.place(cxt);
-//                        if (!player.isCreative() && !level.isClientSide() && res != InteractionResult.FAIL) {
-//                            addMaterial(stack, -price);
-//                        }
-//                        return InteractionResult.SUCCESS;
-//                    }
-//                }
-//            }
-//        }
-//        return InteractionResult.PASS;
-//    }
-
 
     @Override
     public InteractionResult place(BlockPlaceContext pContext) {
