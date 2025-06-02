@@ -1,0 +1,25 @@
+{
+  "type": "buildingpacks:upgrade",
+  "pattern": [
+    " / ",
+    "IXI",
+    "BIB"
+  ],
+  "key": {
+    "X": {
+      "item": "buildingpacks:block_pack"
+    },
+    "/": {
+      "item": "minecraft:stick"
+    },
+    "I" :  {
+      "item": "minecraft:iron_ingot"
+    },
+    "B" :  {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "result": {
+    "item": "buildingpacks:med_block_pack"
+  }
+}

@@ -1,6 +1,8 @@
-package com.bobvarioa.buildingpacks.client;
+package com.bobvarioa.buildingpacks.client.renderer;
 
 import com.bobvarioa.buildingpacks.BlockPack;
+import com.bobvarioa.buildingpacks.client.model.BlockPackBakedModel;
+import com.bobvarioa.buildingpacks.client.model.ModModels;
 import com.bobvarioa.buildingpacks.item.BlockPackItem;
 import com.bobvarioa.buildingpacks.register.ModItems;
 import com.mojang.blaze3d.platform.Lighting;
@@ -27,7 +29,6 @@ import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.model.BakedModelWrapper;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
@@ -37,7 +38,6 @@ import static com.bobvarioa.buildingpacks.BuildingPacks.MODID;
 import static net.minecraft.client.renderer.entity.ItemRenderer.getFoilBuffer;
 import static net.minecraft.client.renderer.entity.ItemRenderer.getFoilBufferDirect;
 
-@Mod.EventBusSubscriber(value = Dist.CLIENT, modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class BlockPackRenderer extends BlockEntityWithoutLevelRenderer {
     public static boolean removeCameraTransforms = false;
     private static BlockPackRenderer instance;
@@ -55,63 +55,6 @@ public class BlockPackRenderer extends BlockEntityWithoutLevelRenderer {
         super(pBlockEntityRenderDispatcher, pEntityModelSet);
         itemRenderer = Minecraft.getInstance().getItemRenderer();
         modelManager = Minecraft.getInstance().getModelManager();
-    }
-
-    public static class BlockPackBakedModel extends BakedModelWrapper<BakedModel> {
-
-        public BlockPackBakedModel(BakedModel originalModel) {
-            super(originalModel);
-        }
-
-        @Override
-        public boolean isCustomRenderer() {
-            return true;
-        }
-
-        @Override
-        public boolean isGui3d() {
-            return false;
-        }
-
-        @Override
-        public boolean usesBlockLight() {
-            return false;
-        }
-
-        @Override
-        public boolean useAmbientOcclusion() {
-            return true;
-        }
-
-        @Override
-        public BakedModel applyTransform(ItemDisplayContext displayContext, PoseStack poseStack, boolean leftHand) {
-            if (displayContext == ItemDisplayContext.GROUND || displayContext == ItemDisplayContext.FIXED) {
-                return super.applyTransform(displayContext, poseStack, leftHand);
-            }
-            return this;
-        }
-    }
-
-    @SubscribeEvent
-    public static void onModelBake(ModelEvent.ModifyBakingResult event) {
-        Map<ResourceLocation, BakedModel> models = event.getModels();
-        ModelResourceLocation location = new ModelResourceLocation(MODID, "block_pack", "inventory");
-        ModelResourceLocation medLocation = new ModelResourceLocation(MODID, "med_block_pack", "inventory");
-        ModelResourceLocation bigLocation = new ModelResourceLocation(MODID, "big_block_pack", "inventory");
-        models.put(location, new BlockPackBakedModel(models.get(toolboxRegModel)));
-        models.put(medLocation, new BlockPackBakedModel(models.get(toolboxMedModel)));
-        models.put(bigLocation, new BlockPackBakedModel(models.get(toolboxBigModel)));
-    }
-
-    private static final ResourceLocation toolboxRegModel = new ResourceLocation(MODID, "item/toolbox_reg");
-    private static final ResourceLocation toolboxMedModel = new ResourceLocation(MODID, "item/toolbox_med");
-    private static final ResourceLocation toolboxBigModel = new ResourceLocation(MODID, "item/toolbox_big");
-
-    @SubscribeEvent
-    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
-        event.register(toolboxRegModel);
-        event.register(toolboxMedModel);
-        event.register(toolboxBigModel);
     }
 
 
@@ -154,11 +97,11 @@ public class BlockPackRenderer extends BlockEntityWithoutLevelRenderer {
         Minecraft mc = Minecraft.getInstance();
 
         if (displayContext == ItemDisplayContext.GUI || displayContext == ItemDisplayContext.GROUND || displayContext == ItemDisplayContext.FIXED) {
-            ResourceLocation model = toolboxRegModel;
+            ResourceLocation model = ModModels.toolboxRegModel;
             if (stack.is(ModItems.MED_BLOCK_PACK.get())) {
-                model = toolboxMedModel;
+                model = ModModels.toolboxMedModel;
             } else if (stack.is(ModItems.BIG_BLOCK_PACK.get())) {
-                model = toolboxBigModel;
+                model = ModModels.toolboxBigModel;
             }
 
             BakedModel base = modelManager.getModel(model);
@@ -169,7 +112,7 @@ public class BlockPackRenderer extends BlockEntityWithoutLevelRenderer {
             } else {
 
             }
-            renderItem(poseStack, pBuffer, LightTexture.FULL_SKY, OverlayTexture.NO_OVERLAY, false, base, bi);
+            renderItem(poseStack, pBuffer, LightTexture.FULL_BRIGHT, OverlayTexture.NO_OVERLAY, false, base, bi);
             poseStack.popPose();
         }
 

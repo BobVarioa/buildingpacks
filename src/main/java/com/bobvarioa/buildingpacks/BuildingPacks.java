@@ -1,9 +1,12 @@
 package com.bobvarioa.buildingpacks;
 
+import com.bobvarioa.buildingpacks.capabilty.BuildingPower;
+import com.bobvarioa.buildingpacks.capabilty.BuildingPowerEvents;
+import com.bobvarioa.buildingpacks.capabilty.IBuildingPowersHandler;
 import com.bobvarioa.buildingpacks.compat.kubejs.BuildingPacksKubeJS;
 import com.bobvarioa.buildingpacks.item.BlockPackItem;
-import com.bobvarioa.buildingpacks.network.BlockPackPacketHandler;
-import com.bobvarioa.buildingpacks.register.ModItems;
+import com.bobvarioa.buildingpacks.item.templates.InventoryListener;
+import com.bobvarioa.buildingpacks.register.*;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -11,10 +14,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
@@ -50,6 +55,9 @@ public class BuildingPacks {
             .icon(() -> blockPackOf(new ResourceLocation("minecraft", "oak")))
             .displayItems((parameters, output) -> {
                 output.accept(ModItems.WRENCH.get());
+//                output.accept(ModItems.DRAFTING_PENCIL.get());
+//                output.accept(ModItems.BLUEPRINT_DESK.get());
+//                output.accept(ModItems.HARD_HAT.get());
 //                output.accept(ModItems.CLIPBOARD.get());
                 BlockPack.blockPacks.forEach((key) -> {
                     output.accept(blockPackOf(key.id));
@@ -63,12 +71,19 @@ public class BuildingPacks {
 
         bus.addListener(this::createRegistry);
         bus.addListener(this::onRegister);
-        bus.addListener(BlockPackPacketHandler::commonSetup);
+        bus.addListener(ModPackets::commonSetup);
 
         ModItems.register(bus);
+        ModBlocks.register(bus);
+        ModRecipes.register(bus);
+        ModBlockEntities.register(bus);
         CREATIVE_MODE_TABS.register(bus);
 
+        EVENT_BUS.addGenericListener(Entity.class, BuildingPowerEvents::attachCaps);
         EVENT_BUS.addListener(BlockPackItem::pickupItem);
+        EVENT_BUS.addListener(EventPriority.LOWEST, InventoryListener::onEnterInventory);
+        EVENT_BUS.addListener(EventPriority.LOWEST, InventoryListener::onLeaveInventory);
+        EVENT_BUS.addListener(EventPriority.LOWEST, InventoryListener::onPlayerClone);
     }
 
     private void createRegistry(final NewRegistryEvent event) {
@@ -436,6 +451,7 @@ public class BuildingPacks {
                 PackBuilder.create("seared", 64 * 4)
                         .put("seared_stone", 1f)
                         .slabStairs("seared_stone")
+                        .put("seared_bricks", 1f)
                         .wallSlabStairs("seared_bricks", false)
                         .put("seared_cracked_bricks", 1f)
                         .put("seared_fancy_bricks", 1f)

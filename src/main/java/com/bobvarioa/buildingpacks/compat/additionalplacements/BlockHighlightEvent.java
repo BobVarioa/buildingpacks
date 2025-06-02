@@ -1,7 +1,7 @@
 package com.bobvarioa.buildingpacks.compat.additionalplacements;
 
-import com.bobvarioa.buildingpacks.BlockPack;
 import com.bobvarioa.buildingpacks.item.BlockPackItem;
+import com.bobvarioa.buildingpacks.register.ModItems;
 import com.firemerald.additionalplacements.block.interfaces.IPlacementBlock;
 import com.firemerald.additionalplacements.config.APConfigs;
 import net.minecraft.client.Minecraft;
@@ -21,7 +21,7 @@ import static com.bobvarioa.buildingpacks.BuildingPacks.MODID;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 @OnlyIn(Dist.CLIENT)
-public class BlockPackHighlightEvent {
+public class BlockHighlightEvent {
     @SubscribeEvent
     public static void onHighlightBlock(RenderHighlightEvent.Block event) {
         if (ModList.get().isLoaded("additionalplacements")) {
@@ -29,14 +29,23 @@ public class BlockPackHighlightEvent {
             Player player = Minecraft.getInstance().player;
             if (player == null) return;
             ItemStack stack = player.getMainHandItem();
-            if (stack.isEmpty()) stack = player.getOffhandItem();
             if (stack.getItem() instanceof BlockPackItem) {
                 Block block = BlockPackItem.getSelectedBlock(stack);
-                if (block instanceof IPlacementBlock<?> verticalBlock) {
-                    if (verticalBlock.hasAdditionalStates())
-                        verticalBlock.renderHighlight(event.getPoseStack(), event.getMultiBufferSource().getBuffer(RenderType.LINES), player, event.getTarget(), event.getCamera(), event.getPartialTick());
+                renderHighlight(event, block, player);
+            }
+            if (stack.is(ModItems.DRAFTING_PENCIL.get())) {
+                if (stack.getItem() instanceof BlockItem bi) {
+                    renderHighlight(event, bi.getBlock(), player);
                 }
             }
+
+        }
+    }
+
+    private static void renderHighlight(RenderHighlightEvent.Block event, Block block, Player player) {
+        if (block instanceof IPlacementBlock<?> verticalBlock) {
+            if (verticalBlock.hasAdditionalStates())
+                verticalBlock.renderHighlight(event.getPoseStack(), event.getMultiBufferSource().getBuffer(RenderType.LINES), player, event.getTarget(), event.getCamera(), event.getPartialTick());
         }
     }
 }

@@ -32,12 +32,7 @@ public class BlockEntryMixin {
     public void setItemAndFindNewBlockState(ItemStack itemStack, Level world, Direction originalDirection, Direction clickedFace, Vec3 relativeHitVec, CallbackInfo ci) {
         if (itemStack.getItem() instanceof BlockPackItem bpi) {
             BlockEntry _this = (BlockEntry)(Object)this;
-            CompoundTag tag = itemStack.getTag();
-            if (tag == null) return;
-            BlockPack data = BlockPackItem.getData(itemStack);
-            var index = tag.getInt("index");
-            if (data == null) return;
-            Block block = data.getBlock(index);
+            Block block = BlockPackItem.getSelectedBlock(itemStack);
             _this.item = block.asItem();
             Direction direction = originalDirection;
             if (_this.rotation != null) {

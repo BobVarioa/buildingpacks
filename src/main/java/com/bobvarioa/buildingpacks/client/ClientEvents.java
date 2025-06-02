@@ -1,15 +1,24 @@
 package com.bobvarioa.buildingpacks.client;
 
 import com.bobvarioa.buildingpacks.BlockPack;
+import com.bobvarioa.buildingpacks.block.entity.TemplateBlockEntity;
+import com.bobvarioa.buildingpacks.capabilty.BuildingPower;
 import com.bobvarioa.buildingpacks.client.screens.BlockPackGuiOverlay;
 import com.bobvarioa.buildingpacks.item.BlockPackItem;
-import com.bobvarioa.buildingpacks.network.BlockPackPacketHandler;
+import com.bobvarioa.buildingpacks.network.ToolIndexUpdatePacket;
+import com.bobvarioa.buildingpacks.register.ModCaps;
+import com.bobvarioa.buildingpacks.register.ModPackets;
+import com.bobvarioa.buildingpacks.network.BreakBlockPacket;
+import com.bobvarioa.buildingpacks.network.DropItemPacket;
+import com.bobvarioa.buildingpacks.network.IndexUpdatePacket;
+import com.bobvarioa.buildingpacks.register.ModBlocks;
+import com.bobvarioa.buildingpacks.register.ModItems;
+import com.bobvarioa.buildingpacks.utils.WorldUtils;
 import com.firemerald.additionalplacements.block.AdditionalPlacementBlock;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.screens.Overlay;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -24,11 +33,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RenderGuiOverlayEvent;
-import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -42,16 +50,78 @@ import static com.bobvarioa.buildingpacks.BuildingPacks.MODID;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT, modid = MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 @OnlyIn(Dist.CLIENT)
-public class BlockPackClientEvents {
+public class ClientEvents {
     public static boolean blockPackOpen = false;
+
+    @SubscribeEvent
+    public static void handleScrollScreen(ScreenEvent.MouseScrolled.Pre event) {
+        if (event.getScreen() instanceof InventoryScreen inv) {
+            int sign = (int) Math.signum(event.getScrollDelta());
+            Player player = Minecraft.getInstance().player;
+            if (player == null) return;
+
+            if (inv.hoveredSlot != null) {
+                ItemStack stack = inv.hoveredSlot.getItem();
+
+                if (stack.getItem() instanceof BlockPackItem) {
+                    CompoundTag tag = stack.getOrCreateTag();
+                    var index = tag.getInt("index");
+                    if (sign > 0) {
+                        index--;
+                        if (index < 0) {
+                            index = BlockPackItem.getData(stack).length() - 1;
+                        }
+                    } else if (sign < 0) {
+                        index++;
+                        if (index >= BlockPackItem.getData(stack).length()) {
+                            index = 0;
+                        }
+                    }
+                    if (sign != 0) {
+                        tag.putInt("index", index);
+                        ModPackets.INSTANCE.send(PacketDistributor.SERVER.noArg(), new IndexUpdatePacket(index, inv.hoveredSlot.index));
+                        event.setCanceled(true);
+                    }
+                }
+
+            }
+        }
+    }
 
     @SubscribeEvent
     public static void handleScroll(InputEvent.MouseScrollingEvent event) {
         int sign = (int) Math.signum(event.getScrollDelta());
         Player player = Minecraft.getInstance().player;
+        Options options = Minecraft.getInstance().options;
         if (player == null) return;
         ItemStack stack = player.getMainHandItem();
-        if ((player.isCrouching() || blockPackOpen) && stack.getItem() instanceof BlockPackItem) {
+        if (stack.getItem() instanceof BlockPackItem) {
+            if (blockPackOpen) {
+//                if (options.keyShift.isDown()) {
+//                    CompoundTag tag = stack.getOrCreateTag();
+//                    var toolIndex = tag.getInt("toolIndex");
+//
+//                    if (sign > 0) {
+//                        toolIndex--;
+//                        if (toolIndex < 0) {
+//                            toolIndex = BuildingPower.ORDER_SET.length - 1;
+//                        }
+//                    } else if (sign < 0) {
+//                        toolIndex++;
+//                        if (toolIndex > BuildingPower.ORDER_SET.length - 1) {
+//                            toolIndex = 0;
+//                        }
+//                    }
+//
+//                    if (sign != 0) {
+//                        tag.putInt("toolIndex", toolIndex);
+//                        ModPackets.INSTANCE.send(PacketDistributor.SERVER.noArg(), new ToolIndexUpdatePacket(toolIndex));
+//                        event.setCanceled(true);
+//                    }
+//                    return;
+//                }
+            } else if (!options.keyShift.isDown()) return;
+
             CompoundTag tag = stack.getOrCreateTag();
             var index = tag.getInt("index");
             if (sign > 0) {
@@ -65,9 +135,11 @@ public class BlockPackClientEvents {
                     index = 0;
                 }
             }
-            tag.putInt("index", index);
-            BlockPackPacketHandler.INSTANCE.send(PacketDistributor.SERVER.noArg(), new BlockPackPacketHandler.IndexUpdatePacket(index));
-            event.setCanceled(true);
+            if (sign != 0) {
+                tag.putInt("index", index);
+                ModPackets.INSTANCE.send(PacketDistributor.SERVER.noArg(), new IndexUpdatePacket(index, player.getInventory().selected));
+                event.setCanceled(true);
+            }
         }
     }
 
@@ -77,7 +149,7 @@ public class BlockPackClientEvents {
         Player player = Minecraft.getInstance().player;
         if (player == null) return;
         ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() instanceof BlockPackItem) {
+        {
             CompoundTag tag = stack.getOrCreateTag();
             HitResult hitResult = Minecraft.getInstance().hitResult;
             HitResult.Type hitresult$type = hitResult.getType();
@@ -88,7 +160,7 @@ public class BlockPackClientEvents {
                 if (blockstate.isAir()) {
                     return;
                 }
-                Block block = blockstate.getBlock();
+                Block block = WorldUtils.getRealBlock(level, blockpos, blockstate.getBlock());
 
                 Inventory inventory = player.getInventory();
 
@@ -98,14 +170,41 @@ public class BlockPackClientEvents {
                         BlockPack data = BlockPackItem.getData(itemStack);
                         int index = data.getBlockIndex(block);
                         if (index != -1) {
-                            inventory.selected = i;
+                            ModPackets.INSTANCE.send(PacketDistributor.SERVER.noArg(), new IndexUpdatePacket(index, i));
+                            player.getInventory().setPickedItem(itemStack);
                             tag.putInt("index", index);
-                            BlockPackPacketHandler.INSTANCE.send(PacketDistributor.SERVER.noArg(), new BlockPackPacketHandler.IndexUpdatePacket(index));
                             event.setCanceled(true);
                             break;
                         }
                     }
                 }
+            }
+        }
+//        if (stack.getItem() instanceof BlockPackItem) {
+//        }
+
+        if (stack.is(ModItems.DRAFTING_PENCIL.get())) {
+            HitResult hitResult = Minecraft.getInstance().hitResult;
+            HitResult.Type hitresult$type = hitResult.getType();
+            if (hitresult$type == HitResult.Type.BLOCK) {
+                BlockPos blockpos = ((BlockHitResult) hitResult).getBlockPos();
+                Level level = player.level();
+                BlockState blockstate = level.getBlockState(blockpos);
+                if (blockstate.isAir()) {
+                    return;
+                }
+                Block block = blockstate.getBlock();
+                if (block.equals(ModBlocks.TEMPLATE_BLOCK.get())) {
+                    if (level.getBlockEntity(blockpos) instanceof TemplateBlockEntity be) {
+                        block = be.blockState.getBlock();
+                    }
+                }
+                if (ModList.get().isLoaded("additionalplacements")) {
+                    if (block instanceof AdditionalPlacementBlock<?> apb) {
+                        block = apb.parentBlock;
+                    }
+                }
+
 
             }
         }
@@ -129,19 +228,15 @@ public class BlockPackClientEvents {
             var data = BlockPackItem.getData(stack);
             float mat = bpi.getMaterial(stack);
             var level = player.level();
-            var block = level.getBlockState(pos).getBlock();
-            if (ModList.get().isLoaded("additionalplacements")) {
-                if (block instanceof AdditionalPlacementBlock<?> apb) {
-                    block = apb.parentBlock;
-                }
-            }
+            var blockState = level.getBlockState(pos);
+            var block = WorldUtils.getBlock(blockState.getBlock());
 
             float price = data.getPrice(block);
             if (price != -1) {
-                if (player.isCreative() || mat + price <= data.getMaxMaterial()) {
+                if (player.isCreative() || mat + price <= bpi.getMaxMaterial(stack)) {
                     level.destroyBlock(pos, false);
                     bpi.addMaterial(stack, price);
-                    BlockPackPacketHandler.INSTANCE.send(PacketDistributor.SERVER.noArg(), new BlockPackPacketHandler.BreakBlockPacket(pos, price));
+                    ModPackets.INSTANCE.send(PacketDistributor.SERVER.noArg(), new BreakBlockPacket(pos, price));
                     event.setCanceled(true);
                     player.getCooldowns().addCooldown(bpi, 5);
                 }
@@ -154,8 +249,9 @@ public class BlockPackClientEvents {
         Player player = event.getEntity();
         if (!player.level().isClientSide) return;
 
+        Options options = Minecraft.getInstance().options;
         ItemStack stack = event.getItemStack();
-        if (player.isCrouching() && stack.getItem() instanceof BlockPackItem bpi) {
+        if (options.keyShift.isDown() && stack.getItem() instanceof BlockPackItem bpi) {
             event.setCanceled(true);
             blockPackOpen = !blockPackOpen;
         }
@@ -178,11 +274,12 @@ public class BlockPackClientEvents {
                 if (options.keyDrop.isDown()) {
                     while (options.keyDrop.consumeClick()) {
                         var amount = Screen.hasControlDown() ? 64 : 1;
+                        amount = Math.min(amount, (int) Math.floor((mat) / price));
 
                         if (mat - (price * amount) >= 0) {
                             bpi.addMaterial(stack, -price * amount);
                             player.swing(InteractionHand.MAIN_HAND);
-                            BlockPackPacketHandler.INSTANCE.send(PacketDistributor.SERVER.noArg(), new BlockPackPacketHandler.DropItemPacket(amount));
+                            ModPackets.INSTANCE.send(PacketDistributor.SERVER.noArg(), new DropItemPacket(amount));
                             continue;
                         }
                         // normal behavior
@@ -208,7 +305,7 @@ public class BlockPackClientEvents {
                     for (int i = 0; i < len; i++) {
                         if (options.keyHotbarSlots[i].consumeClick()) {
                             tag.putInt("index", min + i);
-                            BlockPackPacketHandler.INSTANCE.send(PacketDistributor.SERVER.noArg(), new BlockPackPacketHandler.IndexUpdatePacket(min + i));
+                            ModPackets.INSTANCE.send(PacketDistributor.SERVER.noArg(), new IndexUpdatePacket(min + i, player.getInventory().selected));
                         }
                     }
                 }
@@ -220,10 +317,18 @@ public class BlockPackClientEvents {
 
     @SubscribeEvent
     public static void preOverlayRendered(RenderGuiOverlayEvent.Pre event) {
-        if (blockPackOpen) {
-            if (event.getOverlay().id().equals(HOTBAR)) {
-                event.setCanceled(true);
 
+        if (event.getOverlay().id().equals(HOTBAR)) {
+            if (blockPackOpen) {
+                event.setCanceled(true);
+                return;
+            }
+            Player player = Minecraft.getInstance().player;
+            if (player != null) {
+                var cap = player.getCapability(ModCaps.BUILDING_POWERS);
+                if (cap.isPresent() && cap.resolve().get().hasPower(BuildingPower.DRAFTING_META)) {
+                    event.setCanceled(true);
+                }
             }
         }
     }

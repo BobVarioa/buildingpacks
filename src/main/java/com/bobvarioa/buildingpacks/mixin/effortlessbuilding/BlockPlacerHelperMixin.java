@@ -2,12 +2,12 @@ package com.bobvarioa.buildingpacks.mixin.effortlessbuilding;
 
 import com.bobvarioa.buildingpacks.BlockPack;
 import com.bobvarioa.buildingpacks.item.BlockPackItem;
+import com.bobvarioa.buildingpacks.utils.WorldUtils;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.DiggerItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraft.world.level.Level;
 import nl.requios.effortlessbuilding.capability.CapabilityHandler;
-import nl.requios.effortlessbuilding.create.foundation.utility.BlockHelper;
 import nl.requios.effortlessbuilding.utilities.BlockEntry;
 import nl.requios.effortlessbuilding.utilities.BlockPlacerHelper;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +23,8 @@ public class BlockPlacerHelperMixin {
         if (!player.isCreative() && !CapabilityHandler.canBreakFar(player) && stack.getItem() instanceof BlockPackItem) {
             BlockPack data = BlockPackItem.getData(stack);
             if (data == null) return;
-            if (!(data.getBlockIndex(blockEntry.existingBlockState.getBlock()) > -1)) {
+
+            if (!(data.getBlockIndex(WorldUtils.getBlock(blockEntry.existingBlockState.getBlock())) > -1)) {
                 cir.setReturnValue(false);
             }
         }

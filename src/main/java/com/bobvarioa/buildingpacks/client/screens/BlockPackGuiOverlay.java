@@ -1,6 +1,6 @@
 package com.bobvarioa.buildingpacks.client.screens;
 
-import com.bobvarioa.buildingpacks.client.BlockPackClientEvents;
+import com.bobvarioa.buildingpacks.client.ClientEvents;
 import com.bobvarioa.buildingpacks.item.BlockPackItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -21,7 +21,7 @@ public class BlockPackGuiOverlay implements IGuiOverlay {
     @Override
     public void render(ForgeGui gui, GuiGraphics guiGraphics, float partialTick, int screenWidth, int screenHeight) {
         Player player = gui.getMinecraft().player;
-        if (player != null && !player.isSpectator() && BlockPackClientEvents.blockPackOpen) {
+        if (player != null && !player.isSpectator() && ClientEvents.blockPackOpen) {
             ItemStack stack = player.getMainHandItem();
 
             if (stack.getItem() instanceof BlockPackItem bpi) {
@@ -71,21 +71,20 @@ public class BlockPackGuiOverlay implements IGuiOverlay {
                         this.renderSlot(guiGraphics, j1, k1, partialTick, player, data.getBlock(min + i1).asItem().getDefaultInstance(), l++);
                     }
 
-                    if (!stack.isEmpty()) {
-                        int i2 = screenHeight - 16 - 3;
-                        if (humanoidarm == HumanoidArm.LEFT) {
-                            this.renderSlot(guiGraphics, i - offhandOffset - 26, i2, partialTick, player, stack, l++);
-                        } else {
-                            this.renderSlot(guiGraphics, i + offhandOffset + 10, i2, partialTick, player, stack, l++);
-                        }
-                    }
+                    int i2 = screenHeight - 16 - 3;
+                    int pX = humanoidarm == HumanoidArm.LEFT ? i - offhandOffset - 26 : i + offhandOffset + 10;
 
+
+                    this.renderSlot(guiGraphics, pX, i2, partialTick, player, stack, l++);
+//                    int toolIndex = tag.getInt("toolIndex");
                 }
             } else {
-                BlockPackClientEvents.blockPackOpen = false;
+                ClientEvents.blockPackOpen = false;
             }
         }
     }
+
+
 
     private void renderSlot(GuiGraphics pGuiGraphics, int pX, int pY, float pPartialTick, Player pPlayer, ItemStack pStack, int pSeed) {
         if (!pStack.isEmpty()) {

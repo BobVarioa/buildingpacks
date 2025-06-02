@@ -26,12 +26,7 @@ public class CompatHelperMixin {
     @Inject(method = "getItemBlockFromStack(Lnet/minecraft/world/item/ItemStack;)Lnet/minecraft/world/item/ItemStack;", at = @At("HEAD"), remap = false, cancellable = true)
     private static void getItemBlockFromStack(ItemStack proxy, CallbackInfoReturnable<ItemStack> cir) {
         if (proxy.getItem() instanceof BlockPackItem) {
-            CompoundTag tag = proxy.getTag();
-            if (tag == null) return;
-            BlockPack data = BlockPackItem.getData(proxy);
-            if (data == null) return;
-            var index = tag.getInt("index");
-            ItemStack stack = new ItemStack(data.getBlock(index).asItem());
+            ItemStack stack = new ItemStack(BlockPackItem.getSelectedBlock(proxy).asItem());
 
             cir.setReturnValue(stack);
         }

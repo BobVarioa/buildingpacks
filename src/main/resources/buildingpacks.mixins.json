@@ -5,10 +5,12 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "buildingpacks.refmap.json",
   "mixins": [
+    "create.IPlacementHelperMixin",
     "effortlessbuilding.BlockEntryMixin",
+    "effortlessbuilding.BlockPlacerHelperMixin",
     "effortlessbuilding.CompatHelperMixin",
     "effortlessbuilding.InventoryHelperMixin",
-    "effortlessbuilding.BlockPlacerHelperMixin"
+    "minecraft.BlockItemMixin"
   ],
   "client": [
     "effortlessbuilding.BuilderChainMixin"
