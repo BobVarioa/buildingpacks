@@ -173,12 +173,16 @@ public class BlockPackItem extends BlockItem {
 
     @Override
     public InteractionResult place(BlockPlaceContext pContext) {
-        BlockPlaceContext blockplacecontext = this.updatePlacementContext(pContext);
-        if (blockplacecontext != null) {
+        BlockPlaceContext bpc = this.updatePlacementContext(pContext);
+        if (bpc != null) {
             var stack = pContext.getItemInHand();
             var data = getData(stack);
             float mat = getMaterial(stack);
             var tag = stack.getOrCreateTag();
+
+            if (!bpc.replacingClickedOnBlock() && !bpc.getLevel().getBlockState(bpc.getClickedPos()).canBeReplaced()) {
+                return InteractionResult.FAIL;
+            }
 
             if (!(mat > 0)) return InteractionResult.FAIL;
 
@@ -191,13 +195,13 @@ public class BlockPackItem extends BlockItem {
                     if (mat - price >= 0) {
                         BlockState blockstate = bie.buildingpacks$getPlacementState(pContext);
                         if (blockstate != null && bie.buildingpacks$canPlace(pContext, blockstate)) {
-                            if (!bie.buildingpacks$placeBlock(blockplacecontext, blockstate)) {
+                            if (!bie.buildingpacks$placeBlock(bpc, blockstate)) {
                                 return InteractionResult.FAIL;
                             } else {
-                                BlockPos blockpos = blockplacecontext.getClickedPos();
-                                Level level = blockplacecontext.getLevel();
-                                Player player = blockplacecontext.getPlayer();
-                                ItemStack itemstack = blockplacecontext.getItemInHand();
+                                BlockPos blockpos = bpc.getClickedPos();
+                                Level level = bpc.getLevel();
+                                Player player = bpc.getPlayer();
+                                ItemStack itemstack = bpc.getItemInHand();
                                 BlockState blockState = level.getBlockState(blockpos);
                                 if (blockState.is(blockstate.getBlock())) {
                                     blockState.getBlock().setPlacedBy(level, blockpos, blockState, player, itemstack);
